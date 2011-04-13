@@ -75,15 +75,15 @@ using namespace std;
 	vector<turmline> prog;
 	
 	int steps;
+	int Asteps;
 	string qState;
 	int qLine;
 	char filename[100];
 	
 	int x,y;
 	int look;
-	char lookc;
 	bool end=false;
-
+	bool ispause=true;
 
 ////////////////////////////////////////////////////
 
@@ -95,10 +95,10 @@ void Reshape(int width, int height){
 
 void Draw(void){
 
-	if(!end)
-			if(!goTurmit()){
-				end=true;					
-			}
+	if((!end)&&ispause)
+		if(!goTurmit()){
+			end=true;					
+		}
 
 
 	double r,g,b;
@@ -302,13 +302,16 @@ void menu(int value){
   	break;
   	
   	case 1:
-  	
-  	
+  		clear();
   	break;
   	
   	
   	case 2:
+  		load(filename);
+  	break;
   	
+  	case 3:
+  		ispause=(ispause?false:true);
   	break;
   
   }
@@ -382,12 +385,12 @@ void show_prog(void){
 			<<prog[i].Nstate<<endl;
 
 
+
 }
 
 
 
 bool goTurmit(void){
-	
 	if(steps!=-1){
 		if(steps>0)
 			steps--;
@@ -445,6 +448,7 @@ void load(char *fname){
 	
 	prog.clear();
 	steps=-1;
+	Asteps=-1;
 	
 	string newstr;
 	char ctemp;
@@ -477,7 +481,7 @@ void load(char *fname){
 					stemp.clear();
 				}else
 					ifs>>steps;
-					
+				Asteps=steps;
 				ctemp='a';
 				while(ctemp!='\n')
 					ctemp=ifs.get();
@@ -511,9 +515,7 @@ void load(char *fname){
 	}
 	qState=prog[0].state;
 	clear();
-	x=y=NPOLE/2;
-	look=1;
-	lookc='>';
+
 }
 
 
@@ -633,9 +635,8 @@ void turmit(void){
 			area[i][j]=0;
 	}
 	
-	x=y=16;
+	x=y=NPOLE/2;
 	look=1;
-	lookc='>';
 
 }
 
@@ -647,54 +648,19 @@ void clear(void){
 		for(int j=0;j<NPOLE;j++)
 			area[i][j]=0;
 	qState=prog[0].state;
+	x=y=NPOLE/2;
+	look=1;
+	steps=Asteps;
 }
 
 
 
 void left(void){
 	look=((look==0)?3:(look-1));
-	switch(look){
-		case 0:
-	 		lookc='^';
-		break;
-
-		case 1:
-	 		lookc='>';
-	 	break;
-
-		case 2:
-	 		lookc='v';
-		break;
-		
-		case 3:
-	 		lookc='<';
-	 	break;
-	
-	}
 }
 
 void right(void){
-
 	look=((look==3)?0:(look+1));
-
-	switch(look){
-		case 0:
-	 		lookc='^';
-		break;
-
-		case 1:
-	 		lookc='>';
-	 	break;
-
-		case 2:
-	 		lookc='v';
-		break;
-		
-		case 3:
-	 		lookc='<';
-	 	break;
-	
-	}
 }
 
 
@@ -743,7 +709,6 @@ void keymv(char a){
 
 
 }
-
 
 
 int main(int Narg,char **arg){
