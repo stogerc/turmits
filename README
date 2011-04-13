@@ -1,1 +1,3 @@
 My simple and dirty turmits interpreter.
+
+c++ -lGLU -lglut turmit0.3.cpp -o turm && ./turm <turmit brain file>
