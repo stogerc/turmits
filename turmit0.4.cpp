@@ -1,109 +1,61 @@
-#include <iostream>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
-#include <stdio.h>
-#include <cstdlib>
-#include <unistd.h>
-#include <termios.h>
-#include <sys/ioctl.h>
-#include <vector>
-#include <GL/glut.h>
-#include <string>
-#include <fstream>
-#include <sys/wait.h>
-
-#define NPOLE 100
-#define SQSIZE 5
-#define SPSIZE 1
-#define TIMER 0
-
-int Npixels=NPOLE*SQSIZE+(NPOLE+1)*SPSIZE;
-int PID;
-
-struct TerminalOpt {
-        TerminalOpt() {
-                termios new_settings;
-                tcgetattr(0,&stored_settings);
-                new_settings = stored_settings;
-                new_settings.c_lflag &= (~ICANON);
-                new_settings.c_cc[VTIME] = 0;
-                new_settings.c_cc[VMIN] = 1;
-                tcsetattr(0,TCSANOW,&new_settings);
-        }
-        ~TerminalOpt() {
-                tcsetattr(0,TCSANOW,&stored_settings);
-        }
-        termios stored_settings;
-};
-
+#include "main.h"
 using namespace std;
 
-///////////////////////////////////////////////////////////
+int Npixels=NPOLE*SQSIZE+(NPOLE+1)*SPSIZE;
 
 
-	void turmit(void);
-	
-	void draw(void);
-	void clear(void);
-	void load(char[]);
-	void keymv(char);
-	
-	void show_prog(void);
-	void show_info(void);
-	
-	void left(void);
-	void right(void);
-	void go(void);
-	bool goTurmit(void);
-	void many_go(void);
-	void to_end(void);
 	
 ///////////////////////////////////////////////////////////
 
 	int  **area;
 	
-	struct turmline{
-		string	state;
-		int		color;
-		int		Ncolor;
+	struct progline{
+		string	state;		//Current state
+		int		color;		//Current color
+		int		Ncolor;		//New color
 		int		rotate;
-		string	Nstate;
+		string	Nstate;		//New state
 	};
 	
 	
-	vector<turmline> prog;
+	vector<progline> prog;
 	
 	int steps;
 	int Asteps;
 	string qState;
 	int qLine;
-	char filename[100];
+	string filename;
 	
 	int x,y;
 	int look;
 	bool end=false;
 	bool ispause=true;
+	int Timer=0;
 
 ////////////////////////////////////////////////////
 
 
 void Reshape(int width, int height){
 	glLoadIdentity();
-	gluOrtho2D(0, Npixels,0, Npixels);
+	gluOrtho2D(0, Npixels+2,0, Npixels+2+11);
 }
+
 
 void Draw(void){
 
 	if((!end)&&ispause)
-		if(!goTurmit()){
+		if(!goTurmit())
 			end=true;					
-		}
-
-
 	double r,g,b;
-	glClear(GL_COLOR_BUFFER_BIT);
-
+	glClear(GL_COLOR_BUFFER_BIT);	
+			
+			
+	glColor3f(1,1,1);
+	glRasterPos2f(SPSIZE+2,Npixels);
+	char stroka[100];
+	sprintf(stroka,"Pause between steps: %d ms.",Timer);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_10 ,(const unsigned char*) stroka );
+      
 	for(int i=0;i<NPOLE;i++)
 		for(int j=0;j<NPOLE;j++){
 
@@ -217,11 +169,10 @@ void Draw(void){
 			glColor3f(r,g,b);
 			
 			
-			
-			glRectf((i*(SQSIZE+SPSIZE)+1),
-			(j*(SQSIZE+SPSIZE)+1),
-			(i*(SQSIZE+SPSIZE)+SQSIZE+1),
-			(j*(SQSIZE+SPSIZE)+SQSIZE+1));
+			glRectf((i*(SQSIZE+SPSIZE)+SPSIZE),
+			(j*(SQSIZE+SPSIZE)+SPSIZE),
+			(i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+			(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
 
 			if(((NPOLE-j-1)==x)&&(i==y)){
 
@@ -290,14 +241,13 @@ void Draw(void){
 
 void timf(int value){
 	glutPostRedisplay();
-	glutTimerFunc(TIMER, timf, 0);
+	glutTimerFunc(Timer, timf, 0);
 }
 
 void menu(int value){
   switch(value){
   
   	case 0:
- 	 	kill(PID,SIGTERM);
   		exit(0);
   	break;
   	
@@ -391,14 +341,15 @@ void show_prog(void){
 
 
 bool goTurmit(void){
-	if(steps!=-1){
-		if(steps>0)
-			steps--;
-		else{
+	
+	if(steps>0)
+		steps--;
+	else
+		if(steps==0){
 			cout<<"Шаги закончились";
 			return 0;
 		}
-	}
+
 	unsigned int i;
 	for(i=0;i<prog.size();i++){
 		
@@ -421,7 +372,7 @@ bool goTurmit(void){
 					right();
 					go();
 				break;
-				
+
 				case 2:
 					right();
 					right();
@@ -437,56 +388,40 @@ bool goTurmit(void){
 		}
 	}
 	
-	
-			
 	return 1;
-	
 }
 
 
-void load(char *fname){
-	
+bool load(string fname){//Переделать
 	prog.clear();
 	steps=-1;
 	Asteps=-1;
 	
 	string newstr;
-	char ctemp;
 	string stemp;
 	
-	if(fname==NULL){
-		cout<<"Имяфайла:";
-		cin>>filename;	
-	}
-	else
-		strcpy(filename,fname);
+	if(!fname.empty())
+		filename=fname;
 
-	ifstream ifs(filename);
+	ifstream ifs(filename.c_str());
 	
 	ifs>>newstr;
 	
 	while(!ifs.eof()){
 		if(newstr.find_first_of(";")==0){
-			ctemp='a';
-				while(ctemp!='\n'){
-					ctemp=ifs.get();
-				}
+				while(ifs.get()!='\n');
 		}else{
 			if(newstr.find_first_of("#")==0){
-
 				if(newstr.length()>1){
 					stemp.clear();
 					stemp=newstr.substr(newstr.find_first_of("#")+1);
 					steps=atoi(stemp.c_str());
-					stemp.clear();
 				}else
 					ifs>>steps;
 				Asteps=steps;
-				ctemp='a';
-				while(ctemp!='\n')
-					ctemp=ifs.get();
+				while(ifs.get()!='\n');
 			}else{
-				turmline nl;
+				progline nl;
 				nl.state=newstr;
 				ifs>>nl.color;
 				ifs>>nl.Ncolor;
@@ -496,106 +431,19 @@ void load(char *fname){
 				stemp=nl.Nstate.substr(0,nl.Nstate.find_first_of(";"));
 				nl.Nstate.clear();
 				nl.Nstate=stemp;
-				stemp.clear();
-//				clog<<nl.state<<" "
-//				<<nl.color<<" "
-//				<<nl.Ncolor<<" "
-//				<<nl.rotate<<" "
-//				<<nl.Nstate<<endl;
-				
-				
+	
 				prog.push_back(nl);
-				ctemp='a';
-				while(ctemp!='\n')
-					ctemp=ifs.get();
+
+				while(ifs.get()!='\n');
 				
 			}
-		}	
+		}
+		newstr.clear();
 		ifs>>newstr;
 	}
-	qState=prog[0].state;
 	clear();
-
+	return 1;
 }
-
-
-
-//void load(char *fname){
-//	prog.clear();
-
-//	char symb,temp;
-//	if(fname==NULL){
-//		cout<<"Имяфайла:";
-//		cin>>filename;	
-//	}
-//	else
-//		strcpy(filename,fname);
-//	FILE *progfile;
-//	steps=-1;
-//	
-//	if(!(progfile=fopen(filename,"r")))
-//		cout<<"Нет файла =(";
-//	else{
-//		symb=getc(progfile);
-//		while(!feof(progfile)){
-
-//			switch(symb){
-//				
-//				case 10:
-
-//				break;
-//				
-//				case 32:
-//					temp='a';
-//					while(temp!='\n')
-//						temp=getc(progfile);
-//				break;
-//			
-//			
-//				case ';':
-//					temp='a';
-//					while(temp!='\n')
-//						temp=getc(progfile);
-//				break;
-//				
-//				case '#':
-//					fscanf(progfile,"%d",&steps);
-//					temp='a';
-//					while(temp!='\n')
-//						temp=getc(progfile);
-//					
-//				break;
-
-//				default:
-//					turmline nl;
-//					nl.state=symb;
-
-//					fscanf(progfile,"%d %d %d ",
-//						&nl.color,&nl.Ncolor,&nl.rotate);
-//						
-//					fscanf(progfile,"%c",&nl.Nstate);
-
-//					prog.push_back(nl);
-//					
-//					temp='a';
-//					while(temp!='\n')
-//						temp=getc(progfile);
-//			
-//				break;			
-//			}
-//			symb=getc(progfile);
-//		
-//		}
-//		
-//		qState=prog[0].state;
-
-//	}
-//	clear();
-//	fclose(progfile);
-//	x=y=20;
-//	look=1;
-//	lookc='>';
-//}
 
 
 
@@ -617,33 +465,22 @@ void go(void){
 		case 3:
 	 		y=((y==0)?(NPOLE-1):(y-1));
 	 	break;
-	
 	}
-
 }
 
 
 void turmit(void){
-	int i,j;
 	area=new int *[NPOLE];
 
-
-	for(i=0;i<NPOLE;i++){
+	for(int i=0;i<NPOLE;i++)
 		area[i]=new int [NPOLE];
-
-		for(j=0;j<NPOLE;j++)
-			area[i][j]=0;
-	}
 	
 	x=y=NPOLE/2;
 	look=1;
-
 }
 
 
-
 void clear(void){
-
 	for(int i=0;i<NPOLE;i++)
 		for(int j=0;j<NPOLE;j++)
 			area[i][j]=0;
@@ -654,87 +491,76 @@ void clear(void){
 }
 
 
-
 void left(void){
 	look=((look==0)?3:(look-1));
 }
+
 
 void right(void){
 	look=((look==3)?0:(look+1));
 }
 
 
+void mouse(int key, int state, int x, int y){
+	if(key==3&&state==0)
+		Timer=((Timer<10000)?Timer+1:10000);
+	if(key==4&&state==0)
+		Timer=((Timer>0)?Timer-1:0);
+}
 
-
-
-
-void keymv(char a){
-		
-	switch(a){
-		
-		case 10:
-			goTurmit();
-		break;
+void keyboard(unsigned char key,int x, int y){
+	clog<<int(key)<<endl;
 	
-		case 99:
-			clear();
+	switch (key){
+		case 32:			//space
+			ispause=(ispause?false:true);
 		break;
 		
-		case 113:
-			cout<<"-выход."<<endl;
-		break;
-				
-		case 108:
-			load(NULL);
+		case 113:			//q
+			exit(0);
 		break;
 		
-		case 114:
+		case 27:			//q
+			exit(0);
+		break;
+		
+		case 114:			//r
 			load(filename);
 		break;
 		
-		case 109:
-			many_go();
+		case 13:
+			if(!end)
+				goTurmit();
 		break;
-		
-		case 100:
-			to_end();
-		break;
-				
-		default:
-			cout<<"?"<<endl;
-		break;
-	
 	}
-
-
-
 }
 
 
 int main(int Narg,char **arg){
-	TerminalOpt term;
 	turmit();
 	char a;
-	unsigned int step=0;
+	
 	if(Narg>1){
 		load(arg[1]);
 		Narg--;
 		arg++;
 	}
-	else
-		load(NULL);
-//	mytu.show_prog();
-	
-	bool end=false;
+	else{
+		cerr<<"Use turmit brain file as parametr."<<endl;
+		exit(0);
+	}
+ 
  
 	glutInit(&Narg, arg);
 	glutInitWindowSize(Npixels, Npixels);
 	(void)glutCreateWindow("turmits");
 	createMenu();
-
 	glutReshapeFunc(Reshape);
 	glutDisplayFunc(Draw);
 	glutTimerFunc(0, timf, 0);
+	glutMouseFunc(mouse);
+	glutKeyboardFunc(keyboard);
+	
 
 	glutMainLoop();
 	
