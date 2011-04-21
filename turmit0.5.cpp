@@ -7,7 +7,7 @@
 	- Смешать режим нескольких шагов и обычный
 	- Вывод текста в обычном режиме
 */
-#include "main.h"
+#include "main.hpp"
 using namespace std;
 
 int Npixels=NPOLE*SQSIZE+(NPOLE+1)*SPSIZE+2;
