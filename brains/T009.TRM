@@ -1,0 +1,82 @@
+;
+; Thurmit name: Diaphragm
+; Автор: Дмитрий Папичев (Dmitri.Papichev@iname.com)
+;
+;----------------------------------------------------------
+;
+;-- begin Diaphragm
+; 207804 moves - empty square after 19 flashes
+#207804
+;-- begin draw frame
+A 0 2 1 1
+1 0 2 0 2
+2 0 2 0 3
+3 0 2 0 4
+4 0 2 0 5
+5 0 2 0 6
+6 0 2 0 7
+7 0 2 0 8
+8 0 2 0 9
+9 0 2 0 0
+0 0 2 0 !
+! 0 2 0 @
+@ 0 2 0 -
+- 0 2 0 $
+$ 0 2 0 %
+% 0 2 0 ^
+^ 0 2 0 &
+& 0 2 0 *
+* 0 2 0 (
+( 0 2 0 )
+) 0 2 0 +
++ 0 2 0 =
+= 0 2 0 Q
+Q 0 2 0 W
+W 0 2 0 E
+E 0 2 0 R
+R 0 2 0 T
+T 0 2 0 Y
+Y 0 2 0 U
+U 0 2 0 I
+I 0 2 0 O
+O 0 2 0 P
+P 0 2 0 S
+S 0 2 0 D
+D 0 2 0 F
+F 0 2 0 G
+G 0 2 0 H
+H 0 2 0 J
+J 0 2 0 K
+K 0 2 0 L
+L 0 2 0 Z
+Z 0 2 0 X
+X 0 2 0 C
+C 0 2 0 A
+;-- end draw frame
+;
+;-- fill toward center
+A 2 2 1 a
+a 2 2 1 x
+x 0 7 0 x
+;-- faced border
+x 2 2 -1 y
+y 2 2 -1 z
+;-- faced outermost spiral
+x 7 7 -1 y
+y 7 7 -1 z
+;-- continue
+z 0 7 1 x
+;-- reached the center
+z 7 7 -1 b
+;
+;-- fill toward the border (erase)
+b 7 0 -1 b
+b 0 0 -1 c
+c 0 0 -1 d
+d 0 0 -1 e
+e 0 0 0 b 
+;-- face border
+b 2 2 1 A
+;
+;-- end Diaphragm
+

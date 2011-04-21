@@ -1,0 +1,39 @@
+;--------------------------------------
+; Thurmit name: Шестнадцатиричный крест
+;               Hexadecimal Cross 
+; Автор: Дмитрий Папичев (Dmitri.Papichev@iname.com)
+;-------------- -----------------------
+; Each ray of the cross represents a 
+; сounter of natural numbers in hexadecimal
+; form, adding 1 to its value per cycle.
+; Digits: 0 = black cell, 1..E = colored 
+; cells, F = white cell
+;-------------------------
+; Каждый луч креста представляет из себя
+; счетчик  натуральных чисел в двоичном 
+; виде, увеличивающийся на 1 за цикл.
+; Цифры: 0 - черная клетка, 1..E - цветные,
+; F - белая.
+;
+A  0  7  0 B
+B  0  0  1 C
+C  0  1  1 D
+C  1  2  1 D
+C  2  3  1 D
+C  3  4  1 D
+C  4  5  1 D
+C  5  6  1 D
+C  6  7  1 D
+C  7  8  1 D
+C  8  9  1 D
+C  9 10  1 D
+C 10 11  1 D
+C 11 12  1 D
+C 12 13  1 D
+C 13 14  1 D
+C 14 15  1 D
+C 15 15 -1 B
+;
+D 0 0 1 E
+E 15 0 -1 D
+E 7 7 0 B
