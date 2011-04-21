@@ -10,6 +10,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 #include <string.h>
 
@@ -20,6 +21,9 @@
 #define NPOLE 100
 #define SQSIZE 5
 #define SPSIZE 1
+#define DBG 1
+
+
 
 
 void turmit(void);
@@ -38,5 +42,7 @@ void go(void);
 bool goTurmit(void);
 void many_go(void);
 void to_end(void);
+
+void DrawOneStep(void);
 
 #endif

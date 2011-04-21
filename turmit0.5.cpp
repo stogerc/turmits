@@ -1,3 +1,12 @@
+/*
+	- Количество сделанных шагов
+	+ Режим совместимости с грёбанной виндовой версией
+	+ Доработать goTurmit не надо
+	- Добавить makefile
+	+ Много времени на отрисовку клеток
+	- Смешать режим нескольких шагов и обычный
+	- Вывод текста в обычном режиме
+*/
 #include "main.h"
 using namespace std;
 
@@ -9,13 +18,13 @@ int Npixels=NPOLE*SQSIZE+(NPOLE+1)*SPSIZE;
 
 	int  **area;
 	
-	struct progline{
-		string	state;		//Current state
-		int		color;		//Current color
-		int		Ncolor;		//New color
-		int		rotate;
-		string	Nstate;		//New state
-	};
+struct progline{
+	string	state;		//Current state
+	int		color;		//Current color
+	int		Ncolor;		//New color
+	int		rotate;
+	string	Nstate;		//New state
+};
 	
 	
 	vector<progline> prog;
@@ -26,11 +35,13 @@ int Npixels=NPOLE*SQSIZE+(NPOLE+1)*SPSIZE;
 	int qLine;
 	string filename;
 	
-	int x,y;
+	int x,y,tx,ty;
 	int look;
 	bool end=false;
 	bool ispause=true;
 	int Timer=0;
+	bool IfMany=false;
+	int goPerStep=1000;
 
 ////////////////////////////////////////////////////
 
@@ -41,11 +52,14 @@ void Reshape(int width, int height){
 }
 
 
-void Draw(void){
 
-	if((!end)&&ispause)
-		if(!goTurmit())
-			end=true;					
+void DrawManySteps(void){
+
+	for(int i=0;i<goPerStep;i++){
+		if((!end)&&ispause)
+			if(!goTurmit())
+				end=true;					
+	}
 	double r,g,b;
 	glClear(GL_COLOR_BUFFER_BIT);	
 			
@@ -239,6 +253,208 @@ void Draw(void){
 }
 
 
+void Draw(void){
+	if(IfMany)
+		DrawManySteps();
+	else
+		DrawOneStep();
+}
+
+
+void DrawOneStep(void){
+	int i,j;
+	if((!end)&&ispause)
+		if(!goTurmit())
+			end=true;			
+	double r,g,b;
+//	glClear(GL_COLOR_BUFFER_BIT);	
+			
+			
+	//glColor3f(1,1,1);
+	//glRasterPos2f(SPSIZE+2,Npixels);
+	//char stroka[100];
+	//sprintf(stroka,"Pause between steps: %d ms.",Timer);
+	//glutBitmapString(GLUT_BITMAP_HELVETICA_10 ,
+	//		(const unsigned char*) stroka );
+      
+	i=ty;
+	j=(NPOLE-tx-1);
+			
+	switch(area[NPOLE-j-1][i]){
+		
+		case 0:
+			r=0;
+			g=0;
+			b=0;
+		break;
+	
+		case 1:
+			r=0;
+			g=0;
+			b=10/16.;
+		break;
+		
+		case 2:
+			r=0;
+			g=10/16.;
+			b=0;
+		break;
+		
+		case 3:
+			r=0;
+			g=10/16.;
+			b=10/16.;
+		break;
+		
+		case 4:
+			r=10/16.;
+			g=0;
+			b=0;
+		break;
+		
+		case 5:
+			r=10/16.;
+			g=0;
+			b=10/16.;
+		break;
+		
+		case 6:
+			r=10/16.;
+			g=5/16.;
+			b=0;
+		break;
+		
+		case 7:
+			r=10/16.;
+			g=10/16.;
+			b=10/16.;
+		break;
+			
+		case 8:
+			r=5/16.;
+			g=5/16.;
+			b=5/16.;
+		break;
+		
+		case 9:
+			r=5/16.;
+			g=5/16.;
+			b=1;
+		break;
+	
+		case 10:
+			r=5/16.;
+			g=1;
+			b=5/16.;
+		break;
+				
+		case 11:
+			r=5/16.;
+			g=1;
+			b=1;
+		break;
+		
+		case 12:
+			r=1;
+			g=5/16.;
+			b=5/16.;
+		break;
+		
+		case 13:
+			r=1;
+			g=5/16.;
+			b=1;
+		break;
+		
+		case 14:
+			r=1;
+			g=1;
+			b=5/16.;
+		break;
+		
+		case 15:
+			r=1;
+			g=1;
+			b=1;
+		break;
+		
+		default:
+			r=0;
+			g=0;
+			b=0;
+		break;
+			
+	}
+			
+	glColor3f(r,g,b);
+			
+			
+	glRectf((i*(SQSIZE+SPSIZE)+SPSIZE),
+		(j*(SQSIZE+SPSIZE)+SPSIZE),
+		(i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+		(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+
+	i=y;
+	j=(NPOLE-x-1);
+
+	if(area[(NPOLE-j-1)][i]==15)
+		glColor3f(0.0f,0.0f,0.0f);
+	else
+		glColor3f(1.0f,1.0f,1.0f);
+
+	switch(look){
+		case 1:
+			glBegin(GL_TRIANGLES);
+			glVertex2f(( i*(SQSIZE+SPSIZE)+1),
+						(j*(SQSIZE+SPSIZE)+1));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+1),
+						(j*(SQSIZE+SPSIZE)+1+SQSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
+						(j*(SQSIZE+SPSIZE)+1+SQSIZE/2.));
+			glEnd();
+		break;
+		
+		case 0:
+			glBegin(GL_TRIANGLES);
+			glVertex2f(( i*(SQSIZE+SPSIZE)+1),
+						(j*(SQSIZE+SPSIZE)+1));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
+						(j*(SQSIZE+SPSIZE)+1));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE/2.),
+						(j*(SQSIZE+SPSIZE)+1+SQSIZE));
+			glEnd();
+		break;
+					
+		case 3:
+			glBegin(GL_TRIANGLES);
+			glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
+						(j*(SQSIZE+SPSIZE)+1));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
+						(j*(SQSIZE+SPSIZE)+1+SQSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+1),
+						(j*(SQSIZE+SPSIZE)+1+SQSIZE/2.));
+			glEnd();
+
+		break;
+					
+		case 2:
+			glBegin(GL_TRIANGLES);
+			glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE/2.),
+						(j*(SQSIZE+SPSIZE)+1));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
+						(j*(SQSIZE+SPSIZE)+1+SQSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+1),
+						(j*(SQSIZE+SPSIZE)+1+SQSIZE));
+			glEnd();
+
+		break;
+					
+	}
+
+	glutSwapBuffers();
+}
+
+
 void timf(int value){
 	glutPostRedisplay();
 	glutTimerFunc(Timer, timf, 0);
@@ -271,7 +487,7 @@ void menu(int value){
 
 void createMenu(void){
  
-  int menid = glutCreateMenu(menu);
+  glutCreateMenu(menu);
 
   glutAddMenuEntry("Quit", 0);
   glutAddMenuEntry("Reset", 1);
@@ -283,8 +499,6 @@ void createMenu(void){
 
 
 }
-
-
 
 
 ////////////////////////////////////////////////////////
@@ -338,22 +552,22 @@ void show_prog(void){
 
 }
 
-
-
 bool goTurmit(void){
-	
+
 	if(steps>0)
 		steps--;
 	else
 		if(steps==0){
 			cout<<"Шаги закончились";
+			if(DBG)
+				exit(0);
 			return 0;
 		}
 
 	unsigned int i;
 	for(i=0;i<prog.size();i++){
 		
-		if(((prog[i].state==qState)||prog[i].state=="*")
+		if(((prog[i].state==qState)||prog[i].state=="<*>")	//Заменить на stl
 		&&((prog[i].color==area[x][y])||prog[i].color==-1)){
 			if(prog[i].Ncolor!=-1)
 				area[x][y]=prog[i].Ncolor;
@@ -378,8 +592,15 @@ bool goTurmit(void){
 					right();
 					go();
 				break;
+				
+				case -2:
+					right();
+					right();
+					go();
+				break;
+				
 			}
-			if(prog[i].Nstate!="*"){
+			if(prog[i].Nstate!="<*>"){
 				qState.clear();
 				qState=prog[i].Nstate;
 			}
@@ -387,7 +608,6 @@ bool goTurmit(void){
 			break;
 		}
 	}
-	
 	return 1;
 }
 
@@ -442,12 +662,15 @@ bool load(string fname){//Переделать
 		ifs>>newstr;
 	}
 	clear();
+	
 	return 1;
 }
 
 
 
 void go(void){
+	ty=y;
+	tx=x;
 
 	switch(look){
 		case 0:
@@ -509,7 +732,7 @@ void mouse(int key, int state, int x, int y){
 }
 
 void keyboard(unsigned char key,int x, int y){
-	clog<<int(key)<<endl;
+//	clog<<int(key)<<endl;
 	
 	switch (key){
 		case 32:			//space
@@ -528,6 +751,12 @@ void keyboard(unsigned char key,int x, int y){
 			load(filename);
 		break;
 		
+		case 115:			//r
+			show_prog();
+		break;
+		
+		
+		
 		case 13:
 			if(!end)
 				goTurmit();
@@ -538,7 +767,15 @@ void keyboard(unsigned char key,int x, int y){
 
 int main(int Narg,char **arg){
 	turmit();
-	char a;
+	
+	if(getopt(Narg,arg,"m::")=='m'){
+		IfMany=true;
+			if(optarg){
+				goPerStep=atoi(optarg);
+			}
+		Narg--;
+		arg++;
+	}
 	
 	if(Narg>1){
 		load(arg[1]);
