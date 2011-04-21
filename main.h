@@ -21,7 +21,7 @@
 #define NPOLE 100
 #define SQSIZE 5
 #define SPSIZE 1
-#define DBG 1
+#define DBG 0
 
 
 
@@ -44,5 +44,5 @@ void many_go(void);
 void to_end(void);
 
 void DrawOneStep(void);
-
+void DrawManySteps(void);
 #endif

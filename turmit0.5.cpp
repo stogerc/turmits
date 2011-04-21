@@ -10,7 +10,7 @@
 #include "main.h"
 using namespace std;
 
-int Npixels=NPOLE*SQSIZE+(NPOLE+1)*SPSIZE;
+int Npixels=NPOLE*SQSIZE+(NPOLE+1)*SPSIZE+2;
 
 
 	
@@ -31,24 +31,25 @@ struct progline{
 	
 	int steps;
 	int Asteps;
+	int wassteps;
 	string qState;
 	int qLine;
 	string filename;
+	bool firstStep=true;
 	
 	int x,y,tx,ty;
 	int look;
 	bool end=false;
 	bool ispause=true;
 	int Timer=0;
-	bool IfMany=false;
-	int goPerStep=1000;
+	int goPerStep=1;
 
 ////////////////////////////////////////////////////
 
 
 void Reshape(int width, int height){
 	glLoadIdentity();
-	gluOrtho2D(0, Npixels+2,0, Npixels+2+11);
+	gluOrtho2D(0, Npixels,0, Npixels);
 }
 
 
@@ -64,18 +65,18 @@ void DrawManySteps(void){
 	glClear(GL_COLOR_BUFFER_BIT);	
 			
 			
-	glColor3f(1,1,1);
-	glRasterPos2f(SPSIZE+2,Npixels);
-	char stroka[100];
-	sprintf(stroka,"Pause between steps: %d ms.",Timer);
-	glutBitmapString(GLUT_BITMAP_HELVETICA_10 ,(const unsigned char*) stroka );
+//	glColor3f(1,1,1);
+//	glRasterPos2f(SPSIZE+2,Npixels);
+//	char stroka[100];
+//	sprintf(stroka,"Pause between steps: %d ms.",Timer);
+//	glutBitmapString(GLUT_BITMAP_HELVETICA_10
+//			,(const unsigned char*) stroka );
       
 	for(int i=0;i<NPOLE;i++)
 		for(int j=0;j<NPOLE;j++){
-
 			
 			switch(area[NPOLE-j-1][i]){
-				
+					system("clear");
 				case 0:
 					r=0;
 					g=0;
@@ -184,9 +185,9 @@ void DrawManySteps(void){
 			
 			
 			glRectf((i*(SQSIZE+SPSIZE)+SPSIZE),
-			(j*(SQSIZE+SPSIZE)+SPSIZE),
-			(i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-			(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+				(j*(SQSIZE+SPSIZE)+SPSIZE),
+				(i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+				(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
 
 			if(((NPOLE-j-1)==x)&&(i==y)){
 
@@ -198,46 +199,46 @@ void DrawManySteps(void){
 				switch(look){
 					case 1:
 						glBegin(GL_TRIANGLES);
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+1),
-    								(j*(SQSIZE+SPSIZE)+1));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+1),
-    								(j*(SQSIZE+SPSIZE)+1+SQSIZE));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
-    								(j*(SQSIZE+SPSIZE)+1+SQSIZE/2.));
+    					glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+    								(j*(SQSIZE+SPSIZE)+SPSIZE));
+    					glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+    								(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+    					glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+    								(j*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE));
     					glEnd();
 					break;
 					
 					case 0:
 							glBegin(GL_TRIANGLES);
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+1),
-    								(j*(SQSIZE+SPSIZE)+1));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
-    								(j*(SQSIZE+SPSIZE)+1));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE/2.),
-    								(j*(SQSIZE+SPSIZE)+1+SQSIZE));
+    					glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+    								(j*(SQSIZE+SPSIZE)+SPSIZE));
+    					glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+    								(j*(SQSIZE+SPSIZE)+SPSIZE));
+    					glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE),
+    								(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
     					glEnd();
 					break;
 					
 					case 3:
 							glBegin(GL_TRIANGLES);
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
-    								(j*(SQSIZE+SPSIZE)+1));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
-    								(j*(SQSIZE+SPSIZE)+1+SQSIZE));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+1),
-    								(j*(SQSIZE+SPSIZE)+1+SQSIZE/2.));
+    					glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+    								(j*(SQSIZE+SPSIZE)+SPSIZE));
+    					glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+    								(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+    					glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+    								(j*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE));
     					glEnd();
 
 					break;
 					
 					case 2:
 							glBegin(GL_TRIANGLES);
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE/2.),
-    								(j*(SQSIZE+SPSIZE)+1));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
-    								(j*(SQSIZE+SPSIZE)+1+SQSIZE));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+1),
-    								(j*(SQSIZE+SPSIZE)+1+SQSIZE));
+    					glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE),
+    								(j*(SQSIZE+SPSIZE)+SPSIZE));
+    					glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+    								(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+    					glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+    								(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
     					glEnd();
 
 					break;
@@ -254,29 +255,33 @@ void DrawManySteps(void){
 
 
 void Draw(void){
-	if(IfMany)
+	if(firstStep){
+		glClear(GL_COLOR_BUFFER_BIT);	
+		firstStep=false;
+	}
+	if(goPerStep>1)
 		DrawManySteps();
 	else
 		DrawOneStep();
+	show_info();
 }
 
 
 void DrawOneStep(void){
 	int i,j;
+	
 	if((!end)&&ispause)
 		if(!goTurmit())
 			end=true;			
 	double r,g,b;
-//	glClear(GL_COLOR_BUFFER_BIT);	
-			
-			
-	//glColor3f(1,1,1);
-	//glRasterPos2f(SPSIZE+2,Npixels);
-	//char stroka[100];
-	//sprintf(stroka,"Pause between steps: %d ms.",Timer);
-	//glutBitmapString(GLUT_BITMAP_HELVETICA_10 ,
-	//		(const unsigned char*) stroka );
-      
+	
+//	glColor3f(1,1,1);
+//	glRasterPos2f(SPSIZE+2,Npixels);
+//	char stroka[100];
+//	sprintf(stroka,"Pause between steps: %d ms.",Timer);
+//	glutBitmapString(GLUT_BITMAP_HELVETICA_10 ,
+//			(const unsigned char*) stroka );
+	
 	i=ty;
 	j=(NPOLE-tx-1);
 			
@@ -405,54 +410,55 @@ void DrawOneStep(void){
 	switch(look){
 		case 1:
 			glBegin(GL_TRIANGLES);
-			glVertex2f(( i*(SQSIZE+SPSIZE)+1),
-						(j*(SQSIZE+SPSIZE)+1));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+1),
-						(j*(SQSIZE+SPSIZE)+1+SQSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
-						(j*(SQSIZE+SPSIZE)+1+SQSIZE/2.));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE));
 			glEnd();
 		break;
 		
 		case 0:
 			glBegin(GL_TRIANGLES);
-			glVertex2f(( i*(SQSIZE+SPSIZE)+1),
-						(j*(SQSIZE+SPSIZE)+1));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
-						(j*(SQSIZE+SPSIZE)+1));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE/2.),
-						(j*(SQSIZE+SPSIZE)+1+SQSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SQSIZE)+SPSIZE);
 			glEnd();
 		break;
 					
 		case 3:
 			glBegin(GL_TRIANGLES);
-			glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
-						(j*(SQSIZE+SPSIZE)+1));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
-						(j*(SQSIZE+SPSIZE)+1+SQSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+1),
-						(j*(SQSIZE+SPSIZE)+1+SQSIZE/2.));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE));
 			glEnd();
 
 		break;
 					
 		case 2:
 			glBegin(GL_TRIANGLES);
-			glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE/2.),
-						(j*(SQSIZE+SPSIZE)+1));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+1+SQSIZE),
-						(j*(SQSIZE+SPSIZE)+1+SQSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+1),
-						(j*(SQSIZE+SPSIZE)+1+SQSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
 			glEnd();
-
 		break;
 					
 	}
 
 	glutSwapBuffers();
 }
+
+
 
 
 void timf(int value){
@@ -514,8 +520,6 @@ void to_end(void){
 		cout<<"Невозможно";
 	}
 
-
-
 }
 
 
@@ -525,19 +529,28 @@ void many_go(void){
 	cin>>n;
 	
 	for(;n>0;n--)
-		goTurmit();
-
-
-
+		if(!goTurmit()){
+			cerr<<"Невозможно";
+			break;
+		}
 }
 
 
 void show_info(void){
-	cout<<"Текущее состояние:"<<qState<<endl;
-	cout<<"Цвет поля:"<<area[x][y]<<endl;
-	cout<<"Термит ждёт цвет:"<<prog[qLine].color<<endl;
+	system("clear");
+	clog<<"State:"<<qState<<endl;
+	clog<<"Color:"<<area[x][y]<<endl;
+	clog<<"Wait for:"<<prog[qLine].color<<endl<<endl;
 	
+	clog<<"Pause between steps:"
+	<<Timer<<endl
+	<<"Go per step:"
+	<<goPerStep<<endl
+	<<"Step num:"
+	<<wassteps<<endl;
 }
+
+
 
 void show_prog(void){
 
@@ -554,9 +567,10 @@ void show_prog(void){
 
 bool goTurmit(void){
 
-	if(steps>0)
+	if(steps>0){
 		steps--;
-	else
+		wassteps++;
+	}else
 		if(steps==0){
 			cout<<"Шаги закончились";
 			if(DBG)
@@ -708,9 +722,13 @@ void clear(void){
 		for(int j=0;j<NPOLE;j++)
 			area[i][j]=0;
 	qState=prog[0].state;
-	x=y=NPOLE/2;
+	qLine=0;
+	x=y=tx=ty=NPOLE/2;
 	look=1;
 	steps=Asteps;
+	end=false;
+	wassteps=0;
+	firstStep=true;
 }
 
 
@@ -764,15 +782,37 @@ void keyboard(unsigned char key,int x, int y){
 	}
 }
 
+void special(int key,int x, int y){
+//	clog<<key<<endl;
+	
+	switch (key){
+		case 100:
+
+		break;
+		
+		case 101:
+			goPerStep=goPerStep+=100;
+		break;
+		
+		case 102:
+
+		break;
+		
+		case 103:
+			goPerStep=(goPerStep>1?goPerStep-=100:1);
+		break;
+	}
+//	clog<<goPerStep<<endl;
+}
+
 
 int main(int Narg,char **arg){
 	turmit();
 	
 	if(getopt(Narg,arg,"m::")=='m'){
-		IfMany=true;
-			if(optarg){
-				goPerStep=atoi(optarg);
-			}
+		if(optarg){
+			goPerStep=atoi(optarg);
+		}
 		Narg--;
 		arg++;
 	}
@@ -797,6 +837,7 @@ int main(int Narg,char **arg){
 	glutTimerFunc(0, timf, 0);
 	glutMouseFunc(mouse);
 	glutKeyboardFunc(keyboard);
+	glutSpecialFunc(special);
 	
 
 	glutMainLoop();
