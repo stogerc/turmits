@@ -1,3 +1,3 @@
-My simple and dirty turmits interpreter, writen in c++? with glut.
+My simple and dirty turmits interpreter, written in c++? with glut.
 
 c++ -lGLU -lglut turmit0.3.cpp -o turm && ./turm <turmit brain file>
