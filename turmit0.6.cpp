@@ -31,33 +31,32 @@ struct progline{
 	
 	int steps;
 	int Asteps;
-	int wassteps;
+	unsigned int wassteps;
 	string qState;
 	int qLine;
 	string filename;
-	int firstStep=10;
 	
-	bool fillorerase;
 	int drawColor=0;
 	
-	int x,y,tx,ty;
+	int x,y;
 	int look;
 	bool end=false;
 	bool ispause=true;
 	int Timer=0;
-	int goPerStep=10;
+	int goPerStep=1;
 
 ////////////////////////////////////////////////////
 
 
 void Reshape(int width, int height){
 	glLoadIdentity();
-	gluOrtho2D(0, Npixels,0, Npixels);
+	gluOrtho2D(0, Npixels,0, Npixels+10);
 }
 
 
 
-void DrawManySteps(void){
+void Draw(void){
+	int i,j;
 
 	for(int i=0;i<goPerStep;i++){
 		if((!end)&&ispause)
@@ -66,231 +65,99 @@ void DrawManySteps(void){
 	}
 	double r,g,b;
 	glClear(GL_COLOR_BUFFER_BIT);	
-			
-			
-//	glColor3f(1,1,1);
-//	glRasterPos2f(SPSIZE+2,Npixels);
-//	char stroka[100];
-//	sprintf(stroka,"Pause between steps: %d ms.",Timer);
-//	glutBitmapString(GLUT_BITMAP_HELVETICA_10
-//			,(const unsigned char*) stroka );
+
+	glColor3f(1,1,1);
+	glRasterPos2f(SPSIZE+1,Npixels-1);
+	char stroka[100];
+	sprintf(stroka,
+		"Pause between steps: %d ms.Go per step: %d. Step num: %d",
+		Timer,goPerStep,wassteps);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_10
+			,(const unsigned char*) stroka );
       
-	for(int i=0;i<NPOLE;i++)
-		for(int j=0;j<NPOLE;j++){
+	for(i=0;i<NPOLE;i++)
+		for(j=0;j<NPOLE;j++){
 			
-			switch(area[NPOLE-j-1][i]){
-					system("clear");
-				case 0:
-					r=0;
-					g=0;
-					b=0;
-				break;
-			
-				case 1:
-					r=0;
-					g=0;
-					b=10/16.;
-				break;
-				
-				case 2:
-					r=0;
-					g=10/16.;
-					b=0;
-				break;
-				
-				case 3:
-					r=0;
-					g=10/16.;
-					b=10/16.;
-				break;
-				
-				case 4:
-					r=10/16.;
-					g=0;
-					b=0;
-				break;
-				
-				case 5:
-					r=10/16.;
-					g=0;
-					b=10/16.;
-				break;
-				
-				case 6:
-					r=10/16.;
-					g=5/16.;
-					b=0;
-				break;
-				
-				case 7:
-					r=10/16.;
-					g=10/16.;
-					b=10/16.;
-				break;
-				
-				case 8:
-					r=5/16.;
-					g=5/16.;
-					b=5/16.;
-				break;
-				
-				case 9:
-					r=5/16.;
-					g=5/16.;
-					b=1;
-				break;
-				
-				case 10:
-					r=5/16.;
-					g=1;
-					b=5/16.;
-				break;
-				
-				case 11:
-					r=5/16.;
-					g=1;
-					b=1;
-				break;
-				
-				case 12:
-					r=1;
-					g=5/16.;
-					b=5/16.;
-				break;
-				
-				case 13:
-					r=1;
-					g=5/16.;
-					b=1;
-				break;
-				
-				case 14:
-					r=1;
-					g=1;
-					b=5/16.;
-				break;
-				
-				case 15:
-					r=1;
-					g=1;
-					b=1;
-				break;
-				
-				default:
-					r=0;
-					g=0;
-					b=0;
-				break;
-			
-			}
+			numToRGB(area[NPOLE-j-1][i],r,g,b);
 			
 			glColor3f(r,g,b);
-			
 			
 			glRectf((i*(SQSIZE+SPSIZE)+SPSIZE),
 				(j*(SQSIZE+SPSIZE)+SPSIZE),
 				(i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
 				(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-
-			if(((NPOLE-j-1)==x)&&(i==y)){
-
-				if(area[(NPOLE-j-1)][i]==15||area[(NPOLE-j-1)][i]==14)
-						glColor3f(0.0f,0.0f,0.0f);
-					else
-						glColor3f(1.0f,1.0f,1.0f);
-
-				switch(look){
-					case 1:
-						glBegin(GL_TRIANGLES);
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-    								(j*(SQSIZE+SPSIZE)+SPSIZE));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-    								(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-    								(j*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE));
-    					glEnd();
-					break;
-					
-					case 0:
-							glBegin(GL_TRIANGLES);
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-    								(j*(SQSIZE+SPSIZE)+SPSIZE));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-    								(j*(SQSIZE+SPSIZE)+SPSIZE));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE),
-    								(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-    					glEnd();
-					break;
-					
-					case 3:
-							glBegin(GL_TRIANGLES);
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-    								(j*(SQSIZE+SPSIZE)+SPSIZE));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-    								(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-    								(j*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE));
-    					glEnd();
-
-					break;
-					
-					case 2:
-							glBegin(GL_TRIANGLES);
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE),
-    								(j*(SQSIZE+SPSIZE)+SPSIZE));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-    								(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-    					glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-    								(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-    					glEnd();
-
-					break;
-					
-				}
-			
-			}
-
-
 		}
+
+
+	i=y;
+	j=NPOLE-x-1;
+	if(area[(NPOLE-j-1)][i]>8)
+		glColor3f(0.0f,0.0f,0.0f);
+	else
+		glColor3f(1.0f,1.0f,1.0f);
+
+	switch(look){
+		case 1:
+			glBegin(GL_TRIANGLES);
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE));
+			glEnd();
+		break;
+		
+		case 0:
+			glBegin(GL_TRIANGLES);
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+			glEnd();
+		break;
+
+		case 3:
+			glBegin(GL_TRIANGLES);
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE));
+			glEnd();
+
+		break;
+					
+		case 2:
+			glBegin(GL_TRIANGLES);
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+			glEnd();
+
+		break;
+					
+	}
+			
 
 	glutSwapBuffers();
 }
 
-
-void Draw(void){
-	if(firstStep){
-		clog<<"clear";
-		glClear(GL_COLOR_BUFFER_BIT);	
-		firstStep--;
-	}
-	if(goPerStep>1)
-		DrawManySteps();
-	else
-		DrawOneStep();
-	show_info();
+void timf(int value){
+	glutPostRedisplay();
+	glutTimerFunc(Timer, timf, 0);
 }
 
+void numToRGB(int num, double &r, double &g, double &b){
 
-void DrawOneStep(void){
-	int i,j;
-	
-	if((!end)&&ispause)
-		if(!goTurmit())
-			end=true;			
-	double r,g,b;
-	
-//	glColor3f(1,1,1);
-//	glRasterPos2f(SPSIZE+2,Npixels);
-//	char stroka[100];
-//	sprintf(stroka,"Pause between steps: %d ms.",Timer);
-//	glutBitmapString(GLUT_BITMAP_HELVETICA_10 ,
-//			(const unsigned char*) stroka );
-	
-	i=ty;
-	j=(NPOLE-tx-1);
-			
-	switch(area[NPOLE-j-1][i]){
-		
+	switch(num){
+
 		case 0:
 			r=0;
 			g=0;
@@ -326,19 +193,19 @@ void DrawOneStep(void){
 			g=0;
 			b=10/16.;
 		break;
-		
+			
 		case 6:
 			r=10/16.;
 			g=5/16.;
 			b=0;
 		break;
-		
+			
 		case 7:
 			r=10/16.;
 			g=10/16.;
 			b=10/16.;
 		break;
-			
+		
 		case 8:
 			r=5/16.;
 			g=5/16.;
@@ -350,13 +217,13 @@ void DrawOneStep(void){
 			g=5/16.;
 			b=1;
 		break;
-	
+		
 		case 10:
 			r=5/16.;
 			g=1;
 			b=5/16.;
 		break;
-				
+	
 		case 11:
 			r=5/16.;
 			g=1;
@@ -394,81 +261,8 @@ void DrawOneStep(void){
 		break;
 			
 	}
-			
-	glColor3f(r,g,b);
-			
-			
-	glRectf((i*(SQSIZE+SPSIZE)+SPSIZE),
-		(j*(SQSIZE+SPSIZE)+SPSIZE),
-		(i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-		(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-
-	i=y;
-	j=(NPOLE-x-1);
-
-	if(area[(NPOLE-j-1)][i]==15)
-		glColor3f(0.0f,0.0f,0.0f);
-	else
-		glColor3f(1.0f,1.0f,1.0f);
-
-	switch(look){
-		case 1:
-			glBegin(GL_TRIANGLES);
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE));
-			glEnd();
-		break;
-		
-		case 0:
-			glBegin(GL_TRIANGLES);
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SQSIZE)+SPSIZE);
-			glEnd();
-		break;
-					
-		case 3:
-			glBegin(GL_TRIANGLES);
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE));
-			glEnd();
-
-		break;
-					
-		case 2:
-			glBegin(GL_TRIANGLES);
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-			glEnd();
-		break;
-					
-	}
-
-	glutSwapBuffers();
 }
 
-
-
-
-void timf(int value){
-	glutPostRedisplay();
-	glutTimerFunc(Timer, timf, 0);
-}
 
 void menu(int value){
   switch(value){
@@ -507,28 +301,100 @@ void menu(int value){
   	break;
   	
   	
+	case 100:
+		drawColor=0;
+	break;
+	case 101:
+		drawColor=1;
+	break;  	
+	case 102:
+		drawColor=2;
+	break;
+	case 103:
+		drawColor=3;
+	break;
+	case 104:
+		drawColor=4;
+	break;
+	case 105:
+		drawColor=5;
+	break;
+	case 106:
+		drawColor=6;
+	break;  	
+	case 107:
+		drawColor=7;
+	break;
+	case 108:
+		drawColor=8;
+	break;
+	case 109:
+		drawColor=9;
+	break;
+	case 110:
+		drawColor=10;
+	break;
+	case 111:
+		drawColor=11;
+	break;  	
+	case 112:
+		drawColor=12;
+	break;
+	case 113:
+		drawColor=13;
+	break;
+	case 114:
+		drawColor=14;
+	break;
+	case 115:
+		drawColor=15;
+	break;
+		
+
+
   	
-  
   }
   
   glutPostRedisplay();
 }
 
 void createMenu(void){
+	int collors=glutCreateMenu(menu);
+	glutAddMenuEntry("Black", 100);
+	glutAddMenuEntry("Blue", 101);
+	glutAddMenuEntry("Green", 102);
+	glutAddMenuEntry("Cyan", 103);
+	glutAddMenuEntry("Red", 104);
+	glutAddMenuEntry("Magenta", 105);
+	glutAddMenuEntry("Brown", 106);
+	glutAddMenuEntry("Light gray", 107);
+	glutAddMenuEntry("Dark gray", 108);
+	glutAddMenuEntry("Bright blue", 109);
+	glutAddMenuEntry("Bright green", 110);
+	glutAddMenuEntry("Bright cyan", 111);
+	glutAddMenuEntry("Bright red", 112);
+	glutAddMenuEntry("Bright magenta", 113);
+	glutAddMenuEntry("Bright yellow", 114);
+	glutAddMenuEntry("Bright white", 115);
+	
+	int submenu=glutCreateMenu(menu);
+	glutAddMenuEntry("Sand", 4);
+	glutAddMenuEntry("Eraser", 5);
+	glutAddMenuEntry("Wall", 6);
+	glutAddMenuEntry("Flame", 7);
+	
  
-  glutCreateMenu(menu);
+	glutCreateMenu(menu);
 
-  glutAddMenuEntry("Quit", 0);
-  glutAddMenuEntry("Reset", 1);
-  glutAddMenuEntry("Reload", 2);
-  glutAddMenuEntry("Play/Pause", 3);
-  glutAddMenuEntry("Set sand", 4);
-  glutAddMenuEntry("Set eraser", 5);
-  glutAddMenuEntry("Set wall", 6);
-  glutAddMenuEntry("Set flame", 7);
+	glutAddMenuEntry("Quit", 0);
+	glutAddMenuEntry("Reset", 1);
+	glutAddMenuEntry("Reload", 2);
+	glutAddMenuEntry("Play/Pause", 3);
+	glutAddSubMenu("Set tool",submenu);
+  	glutAddSubMenu("Set color",collors);
   
 
-  glutAttachMenu(GLUT_RIGHT_BUTTON);
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
 
 
 }
@@ -704,9 +570,6 @@ bool load(string fname){//Переделать
 
 
 void go(void){
-	ty=y;
-	tx=x;
-
 	switch(look){
 		case 0:
 	 		x=((x==0)?(NPOLE-1):(x-1));
@@ -727,14 +590,11 @@ void go(void){
 }
 
 
-void turmit(void){
+void initArea(void){
 	area=new int *[NPOLE];
 
 	for(int i=0;i<NPOLE;i++)
 		area[i]=new int [NPOLE];
-	
-	x=y=NPOLE/2;
-	look=1;
 }
 
 
@@ -744,12 +604,11 @@ void clear(void){
 			area[i][j]=0;
 	qState=prog[0].state;
 	qLine=0;
-	x=y=tx=ty=10;
+	x=y=10;
 	look=1;
 	steps=Asteps;
 	end=false;
 	wassteps=0;
-	firstStep=true;
 }
 
 
@@ -812,7 +671,7 @@ void special(int key,int x, int y){
 		break;
 		
 		case 101:
-			goPerStep=goPerStep+=100;
+			goPerStep+=100;
 		break;
 		
 		case 102:
@@ -820,7 +679,7 @@ void special(int key,int x, int y){
 		break;
 		
 		case 103:
-			goPerStep=(goPerStep>1?goPerStep-=100:1);
+			goPerStep=(goPerStep-100>1?goPerStep-100:1);
 		break;
 	}
 //	clog<<goPerStep<<endl;
@@ -831,23 +690,18 @@ void motion(int x,int y){
 	int i,j;
 	j=(x-SPSIZE)/(SQSIZE+SPSIZE);
 	i=(y-SPSIZE)/(SQSIZE+SPSIZE);
-	if(i<NPOLE&&j<NPOLE&&i>=0&&j>=0){
+	if(i+1<NPOLE&&j+1<NPOLE&&i>=0&&j>=0){
 		area[i][j]=drawColor;
+		area[i+1][j]=drawColor;
+		area[i][j+1]=drawColor;
+		area[i+1][j+1]=drawColor;
 	}
 }
 
 
 int main(int Narg,char **arg){
-	turmit();
-	
-	if(getopt(Narg,arg,"m::")=='m'){
-		if(optarg){
-			goPerStep=atoi(optarg);
-		}
-		Narg--;
-		arg++;
-	}
-	
+	initArea();
+		
 	if(Narg>1){
 		load(arg[1]);
 		Narg--;
