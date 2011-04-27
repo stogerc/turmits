@@ -35,14 +35,17 @@ struct progline{
 	string qState;
 	int qLine;
 	string filename;
-	bool firstStep=true;
+	int firstStep=10;
+	
+	bool fillorerase;
+	int drawColor=0;
 	
 	int x,y,tx,ty;
 	int look;
 	bool end=false;
 	bool ispause=true;
 	int Timer=0;
-	int goPerStep=1;
+	int goPerStep=10;
 
 ////////////////////////////////////////////////////
 
@@ -191,7 +194,7 @@ void DrawManySteps(void){
 
 			if(((NPOLE-j-1)==x)&&(i==y)){
 
-				if(area[(NPOLE-j-1)][i]==15)
+				if(area[(NPOLE-j-1)][i]==15||area[(NPOLE-j-1)][i]==14)
 						glColor3f(0.0f,0.0f,0.0f);
 					else
 						glColor3f(1.0f,1.0f,1.0f);
@@ -256,8 +259,9 @@ void DrawManySteps(void){
 
 void Draw(void){
 	if(firstStep){
+		clog<<"clear";
 		glClear(GL_COLOR_BUFFER_BIT);	
-		firstStep=false;
+		firstStep--;
 	}
 	if(goPerStep>1)
 		DrawManySteps();
@@ -485,6 +489,25 @@ void menu(int value){
   	case 3:
   		ispause=(ispause?false:true);
   	break;
+  	
+  	case 4:
+		drawColor=14;
+  	break;
+  	
+  	case 5:
+  		drawColor=0;
+  	break;
+  	
+  	case 6:
+  		drawColor=3;
+  	break;
+  	
+  	case 7:
+  		drawColor=4;
+  	break;
+  	
+  	
+  	
   
   }
   
@@ -499,6 +522,10 @@ void createMenu(void){
   glutAddMenuEntry("Reset", 1);
   glutAddMenuEntry("Reload", 2);
   glutAddMenuEntry("Play/Pause", 3);
+  glutAddMenuEntry("Set sand", 4);
+  glutAddMenuEntry("Set eraser", 5);
+  glutAddMenuEntry("Set wall", 6);
+  glutAddMenuEntry("Set flame", 7);
   
 
   glutAttachMenu(GLUT_RIGHT_BUTTON);
@@ -521,7 +548,6 @@ void to_end(void){
 	}
 
 }
-
 
 void many_go(void){
 	cout<<endl<<"Сколько шагов выполнить:";
@@ -553,23 +579,18 @@ void show_info(void){
 
 
 void show_prog(void){
-
 	for(unsigned int i=0;i<prog.size();i++)
 		cout<<prog[i].state<<" "
 			<<prog[i].color<<" "
 			<<prog[i].Ncolor<<" "
 			<<prog[i].rotate<<" "
 			<<prog[i].Nstate<<endl;
-
-
-
 }
 
 bool goTurmit(void){
 
 	if(steps>0){
 		steps--;
-		wassteps++;
 	}else
 		if(steps==0){
 			cout<<"Шаги закончились";
@@ -577,7 +598,7 @@ bool goTurmit(void){
 				exit(0);
 			return 0;
 		}
-
+	wassteps++;
 	unsigned int i;
 	for(i=0;i<prog.size();i++){
 		
@@ -723,7 +744,7 @@ void clear(void){
 			area[i][j]=0;
 	qState=prog[0].state;
 	qLine=0;
-	x=y=tx=ty=NPOLE/2;
+	x=y=tx=ty=10;
 	look=1;
 	steps=Asteps;
 	end=false;
@@ -761,7 +782,7 @@ void keyboard(unsigned char key,int x, int y){
 			exit(0);
 		break;
 		
-		case 27:			//q
+		case 27:			//esc
 			exit(0);
 		break;
 		
@@ -806,6 +827,16 @@ void special(int key,int x, int y){
 }
 
 
+void motion(int x,int y){
+	int i,j;
+	j=(x-SPSIZE)/(SQSIZE+SPSIZE);
+	i=(y-SPSIZE)/(SQSIZE+SPSIZE);
+	if(i<NPOLE&&j<NPOLE&&i>=0&&j>=0){
+		area[i][j]=drawColor;
+	}
+}
+
+
 int main(int Narg,char **arg){
 	turmit();
 	
@@ -838,7 +869,7 @@ int main(int Narg,char **arg){
 	glutMouseFunc(mouse);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
-	
+	glutMotionFunc(motion);
 
 	glutMainLoop();
 	

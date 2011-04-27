@@ -45,4 +45,7 @@ void to_end(void);
 
 void DrawOneStep(void);
 void DrawManySteps(void);
+
+void numToRGB(int, double&, double&, double&);
+
 #endif
