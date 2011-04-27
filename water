@@ -1,0 +1,145 @@
+sq 0 15 0 sq1
+sq1 0 15 0 sq2
+sq2 0 15 0 sq3
+sq3 0 15 0 sq4
+sq4 0 15 0 sq5
+sq5 0 15 0 sq6
+sq6 0 15 0 sq7
+sq7 0 15 0 sq8
+sq8 0 15 0 sq9
+sq9 0 15 0 sq10
+sq10 0 15 0 sq11
+sq11 0 15 0 sq12
+sq12 0 15 0 sq13
+sq13 0 15 0 sq14
+sq14 0 15 0 sq15
+sq15 0 15 0 sq16
+sq16 0 15 0 sq17
+sq17 0 15 0 sq18
+sq18 0 15 0 sq19
+sq19 0 15 0 sq20
+sq20 0 15 0 sq21
+sq21 0 15 0 sq22
+sq22 0 15 0 sq23
+sq23 0 15 0 sq24
+sq24 0 15 0 sq25
+sq25 0 15 0 sq26
+sq26 0 15 0 sq27
+sq27 0 15 0 sq28
+sq28 0 15 0 sq29
+sq29 0 15 0 sq30
+sq30 0 15 0 sq31
+sq31 0 15 0 sq32
+sq32 0 15 0 sq33
+sq33 0 15 0 sq34
+sq34 0 15 0 sq35
+sq35 0 15 0 sq36
+sq36 0 15 0 sq37
+sq37 0 15 0 sq38
+sq38 0 15 1 sq
+
+sq 15 15 1 dr
+dr 0 14 -1 dr1
+dr1 0 14 1 dr2
+dr2 0 14 1 dr3
+dr3 0 14 -1 dr
+
+dr 15 15 -1 right
+
+
+down 15 15 -1 right
+down -1 -1 0 down
+
+right 15 15 0 right
+right 0 0 2 up1
+
+up1 15 15 1 up2
+up2 15 15 -1 go
+
+go 14 14 -1 isdown
+go 0 0 0 go
+go 15 15 1 go1
+go1 15 15 1 golr
+go1 -1 -1 -1 go15
+go15 -1 -1 -1 go151
+go151 -1 -1 0 down
+
+golr 14 14 1 isdownlr
+golr 0 0 0 golr
+golr 15 15 -1 golr1
+golr1 15 15 -1 go
+
+golr1 0 0 2 gotoar
+gotoar 15 15 0 down
+
+
+goleft -1 -1 -1 go
+
+
+isdown 0 0 2 todown
+isdown -1 -1 1 isleftd
+isleftd 0 14 1 isleftd1
+isleftd -1 -1 2 isrightd
+
+isleftd1 -1 -1 1 isleftd2
+isleftd2 14 0 2 go
+
+isrightd -1 -1 0 isrightd1
+isrightd1 0 14 -1 isrightd2
+isrightd1 -1 -1 -1 isrightdn2
+isrightd2 -1 -1 -1 isrightd3
+isrightd3 14 0 0 go
+
+isrightdn2 0 14 -1 isrightdn25
+isrightdn25 14 0 0 go
+isrightdn2 -1 -1 -1 isrightdn3
+isrightdn3 14 14 0 isrightdn35
+isrightdn35 0 14 2 isrightdn35n
+isrightdn35 -1 -1 2 isrightdn35y
+isrightdn35n 14 0 2 isrightdn35n
+isrightdn35n 14 14 0 go
+isrightdn35y 14 14 2 go
+
+
+todown 14 0 2 todown1
+todown1 0 14 2 goleft
+
+
+goright -1 -1 1 golr
+
+
+isdownlr 0 0 2 todownlr
+isdownlr 15 15 -1 right
+isdownlr 14 14 -1 isleftdlr
+isleftdlr 0 14 -1 isleftd1lr
+isleftdlr -1 -1 2 isrightdlr
+
+isleftd1lr -1 -1 -1 isleftd2lr
+isleftd2lr 14 0 2 golr
+
+
+isrightdlr 14 14 0 isrightd1lr
+isrightd1lr 0 14 1 isrightd2lr
+isrightd1lr -1 -1 1 isrightd2lrn
+isrightd2lr -1 -1 1 isrightd3lr
+isrightd3lr 14 0 0 golr
+
+isrightd2lrn 0 14 1 isrightdn25lrn
+isrightdn25lrn 14 0 0 golr
+isrightd2lrn -1 -1 1 isrightdn3lrn
+isrightdn3lrn 14 14 0 isrightdn35lrn
+isrightdn35lrn 0 14 2 isrightdn35lrnn
+isrightdn35lrn -1 -1 2 isrightdn35lrny
+
+isrightdn35lrnn 14 0 2 isrightdn35lrnn1
+isrightdn35lrnn1 14 14 0 golr
+isrightdn35lrny 14 14 2 golr
+
+
+todown 14 0 2 todown1
+todown1 0 14 2 goleft
+
+
+
+todownlr 14 0 2 todown1lr
+todown1lr 0 14 2 goright
