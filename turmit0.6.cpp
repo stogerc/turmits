@@ -1,22 +1,8 @@
-/*
-	+ Количество сделанных шагов
-	+ Режим совместимости с грёбанной виндовой версией
-	+ Доработать goTurmit не надо
-	- Добавить makefile
-	+ Много времени на отрисовку клеток
-	+ Смешать режим нескольких шагов и обычный
-	+ Вывод текста в обычном режиме
-*/
 #include "main.hpp"
 using namespace std;
-
-int Npixels=NPOLE*SQSIZE+(NPOLE+1)*SPSIZE+2;
-
-
-	
-///////////////////////////////////////////////////////////
-
-	int  **area;
+//Global Variables
+int Npixels;
+int  **area;
 	
 struct progline{
 	string	state;		//Current state
@@ -26,40 +12,57 @@ struct progline{
 	string	Nstate;		//New state
 };
 	
+vector<progline> prog;
 	
-	vector<progline> prog;
-	
-	int steps;
-	int Asteps;
-	unsigned int wassteps;
-	string qState;
-	int qLine;
-	string filename;
-	
-	int drawColor=0;
-	
-	int x,y;
-	int look;
-	bool end=false;
-	bool ispause=true;
-	int Timer=0;
-	int goPerStep=1;
+int steps;
+int Asteps;
+unsigned int wassteps;
+string qState;
+int qLine;
+string filename;
 
+int x,y;
+int look;
+
+int Timer=0;
+int goPerStep=1;
+
+int xmotion, ymotion;
+int drawColor=-1;
+
+bool mouseDraw=false;
+bool end=false;
+bool ispause=0;
+bool isShowTurmit=1;
+
+string message;
 ////////////////////////////////////////////////////
 
 
 void Reshape(int width, int height){
 	glLoadIdentity();
-	gluOrtho2D(0, Npixels,0, Npixels+10);
+	gluOrtho2D(0, Npixels,-NTEXT, Npixels);
 }
-
 
 
 void Draw(void){
 	int i,j;
+	
+	if(mouseDraw&&drawColor!=-1){
 
-	for(int i=0;i<goPerStep;i++){
-		if((!end)&&ispause)
+		j=(xmotion-SPSIZE)/(SQSIZE+SPSIZE);
+		i=(ymotion-SPSIZE)/(SQSIZE+SPSIZE);
+		if(i<NPOLE&&j<NPOLE&&i-1>=0&&j-1>=0){
+			area[i][j]=drawColor;
+			area[i-1][j]=drawColor;
+			area[i][j-1]=drawColor;
+			area[i-1][j-1]=drawColor;
+		}
+	}
+		
+
+	for(i=0;i<goPerStep;i++){
+		if((!end)&&(!ispause))
 			if(!goTurmit())
 				end=true;					
 	}
@@ -67,21 +70,19 @@ void Draw(void){
 	glClear(GL_COLOR_BUFFER_BIT);	
 
 	glColor3f(1,1,1);
-	glRasterPos2f(SPSIZE+1,Npixels-1);
+	glRasterPos2f(2,-NTEXT+2);
 	char stroka[100];
 	sprintf(stroka,
-		"Pause between steps: %d ms.Go per step: %d. Step num: %d",
-		Timer,goPerStep,wassteps);
+		"Filename:%s Delay: %d.Go per step: %d. \
+			Step num: %d. Qrent state: %s %s",filename.c_str(),
+		Timer,goPerStep,wassteps,qState.c_str(),message.c_str());
 	glutBitmapString(GLUT_BITMAP_HELVETICA_10
 			,(const unsigned char*) stroka );
       
 	for(i=0;i<NPOLE;i++)
 		for(j=0;j<NPOLE;j++){
-			
 			numToRGB(area[NPOLE-j-1][i],r,g,b);
-			
 			glColor3f(r,g,b);
-			
 			glRectf((i*(SQSIZE+SPSIZE)+SPSIZE),
 				(j*(SQSIZE+SPSIZE)+SPSIZE),
 				(i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
@@ -89,60 +90,62 @@ void Draw(void){
 		}
 
 
-	i=y;
-	j=NPOLE-x-1;
-	if(area[(NPOLE-j-1)][i]>8)
-		glColor3f(0.0f,0.0f,0.0f);
-	else
-		glColor3f(1.0f,1.0f,1.0f);
-
-	switch(look){
-		case 1:
-			glBegin(GL_TRIANGLES);
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE));
-			glEnd();
-		break;
+	
+	if(isShowTurmit){
+		i=y;
+		j=NPOLE-x-1;
+		if(area[(NPOLE-j-1)][i]>8)
+			glColor3f(0.0f,0.0f,0.0f);
+		else
+			glColor3f(1.0f,1.0f,1.0f);
+		switch(look){
+			case 1:
+				glBegin(GL_TRIANGLES);
+				glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+							(j*(SQSIZE+SPSIZE)+SPSIZE));
+				glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+							(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+				glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+							(j*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE));
+				glEnd();
+			break;
 		
-		case 0:
-			glBegin(GL_TRIANGLES);
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-			glEnd();
-		break;
+			case 0:
+				glBegin(GL_TRIANGLES);
+				glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+							(j*(SQSIZE+SPSIZE)+SPSIZE));
+				glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+							(j*(SQSIZE+SPSIZE)+SPSIZE));
+				glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE),
+							(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+				glEnd();
+			break;
 
-		case 3:
-			glBegin(GL_TRIANGLES);
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE));
-			glEnd();
+			case 3:
+				glBegin(GL_TRIANGLES);
+				glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+							(j*(SQSIZE+SPSIZE)+SPSIZE));
+				glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+							(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+				glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+							(j*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE));
+				glEnd();
 
-		break;
+			break;
 					
-		case 2:
-			glBegin(GL_TRIANGLES);
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-			glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
-						(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
-			glEnd();
+			case 2:
+				glBegin(GL_TRIANGLES);
+				glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE/2.+SPSIZE),
+							(j*(SQSIZE+SPSIZE)+SPSIZE));
+				glVertex2f(( i*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE),
+							(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+				glVertex2f(( i*(SQSIZE+SPSIZE)+SPSIZE),
+							(j*(SQSIZE+SPSIZE)+SQSIZE+SPSIZE));
+				glEnd();
 
-		break;
+			break;
 					
+		}
 	}
 			
 
@@ -283,24 +286,16 @@ void menu(int value){
   	case 3:
   		ispause=(ispause?false:true);
   	break;
-  	
+  	  	
   	case 4:
-		drawColor=14;
+  		to_end();
   	break;
-  	
+
   	case 5:
-  		drawColor=0;
+  		isShowTurmit=!isShowTurmit;
   	break;
-  	
-  	case 6:
-  		drawColor=3;
-  	break;
-  	
-  	case 7:
-  		drawColor=4;
-  	break;
-  	
-  	
+	
+
 	case 100:
 		drawColor=0;
 	break;
@@ -375,25 +370,27 @@ void createMenu(void){
 	glutAddMenuEntry("Bright red", 112);
 	glutAddMenuEntry("Bright magenta", 113);
 	glutAddMenuEntry("Bright yellow", 114);
-	glutAddMenuEntry("Bright white", 115);
+	glutAddMenuEntry("White", 115);
 	
 	int submenu=glutCreateMenu(menu);
-	glutAddMenuEntry("Sand", 4);
-	glutAddMenuEntry("Eraser", 5);
-	glutAddMenuEntry("Wall", 6);
-	glutAddMenuEntry("Flame", 7);
+	glutAddMenuEntry("Sand", 114);
+	glutAddMenuEntry("Eraser", 100);
+	glutAddMenuEntry("Wall", 103);
+	glutAddMenuEntry("Flame", 104);
+	glutAddMenuEntry("Wood", 106);
 	
- 
 	glutCreateMenu(menu);
 
-	glutAddMenuEntry("Quit", 0);
+	glutAddMenuEntry("Quit (q)", 0);
 	glutAddMenuEntry("Reset", 1);
-	glutAddMenuEntry("Reload", 2);
-	glutAddMenuEntry("Play/Pause", 3);
+	glutAddMenuEntry("Reload (r)", 2);
+	glutAddMenuEntry("Play/Pause (space)", 3);
+	glutAddMenuEntry("To end", 4);
+	glutAddMenuEntry("Show/Hide turmit (t)", 5);
+	
 	glutAddSubMenu("Set tool",submenu);
   	glutAddSubMenu("Set color",collors);
   
-
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 
 
@@ -405,28 +402,14 @@ void createMenu(void){
 
 
 void to_end(void){
-	if(steps>0){
-		while(steps>0){
+	message.clear();
+	if(steps>0)
+		while(steps>0)
 			goTurmit();
-		}
-	}else{
-		cout<<"Невозможно";
-	}
+	else
+		message="Steps not defined";
 
 }
-
-void many_go(void){
-	cout<<endl<<"Сколько шагов выполнить:";
-	int n;
-	cin>>n;
-	
-	for(;n>0;n--)
-		if(!goTurmit()){
-			cerr<<"Невозможно";
-			break;
-		}
-}
-
 
 void show_info(void){
 	system("clear");
@@ -441,8 +424,6 @@ void show_info(void){
 	<<"Step num:"
 	<<wassteps<<endl;
 }
-
-
 
 void show_prog(void){
 	for(unsigned int i=0;i<prog.size();i++)
@@ -499,8 +480,9 @@ bool goTurmit(void){
 					right();
 					go();
 				break;
-				
+
 			}
+//			clog<<prog[i].state<<endl;
 			if(prog[i].Nstate!="<*>"){
 				qState.clear();
 				qState=prog[i].Nstate;
@@ -517,7 +499,7 @@ bool load(string fname){//Переделать
 	prog.clear();
 	steps=-1;
 	Asteps=-1;
-	
+
 	string newstr;
 	string stemp;
 	
@@ -563,7 +545,6 @@ bool load(string fname){//Переделать
 		ifs>>newstr;
 	}
 	clear();
-	
 	return 1;
 }
 
@@ -604,7 +585,8 @@ void clear(void){
 			area[i][j]=0;
 	qState=prog[0].state;
 	qLine=0;
-	x=y=10;
+	x=STARTX;
+	y=STARTY;
 	look=1;
 	steps=Asteps;
 	end=false;
@@ -627,6 +609,13 @@ void mouse(int key, int state, int x, int y){
 		Timer=((Timer<10000)?Timer+1:10000);
 	if(key==4&&state==0)
 		Timer=((Timer>0)?Timer-1:0);
+	if(key==0&&state==0){
+		mouseDraw=true;
+		xmotion=x;
+		ymotion=y;
+	}
+	if(key==0&&state==1)
+		mouseDraw=false;
 }
 
 void keyboard(unsigned char key,int x, int y){
@@ -649,16 +638,30 @@ void keyboard(unsigned char key,int x, int y){
 			load(filename);
 		break;
 		
-		case 115:			//r
+		case 115:			//s
 			show_prog();
 		break;
 		
+		case 116:			//t
+  			isShowTurmit=!isShowTurmit;
+		break;
 		
 		
 		case 13:
 			if(!end)
 				goTurmit();
 		break;
+		
+		case 92:
+			for(int i=0;i<goPerStep;i++){
+				if(!end)
+					if(!goTurmit())
+						end=true;
+			}
+		break;
+		
+		
+		
 	}
 }
 
@@ -666,16 +669,8 @@ void special(int key,int x, int y){
 //	clog<<key<<endl;
 	
 	switch (key){
-		case 100:
-
-		break;
-		
 		case 101:
 			goPerStep+=100;
-		break;
-		
-		case 102:
-
 		break;
 		
 		case 103:
@@ -687,19 +682,79 @@ void special(int key,int x, int y){
 
 
 void motion(int x,int y){
-	int i,j;
-	j=(x-SPSIZE)/(SQSIZE+SPSIZE);
-	i=(y-SPSIZE)/(SQSIZE+SPSIZE);
-	if(i+1<NPOLE&&j+1<NPOLE&&i>=0&&j>=0){
-		area[i][j]=drawColor;
-		area[i+1][j]=drawColor;
-		area[i][j+1]=drawColor;
-		area[i+1][j+1]=drawColor;
+	xmotion=x;
+	ymotion=y;
+	if(mouseDraw&&drawColor!=-1){
+		int j=(xmotion-SPSIZE)/(SQSIZE+SPSIZE);
+		int i=(ymotion-SPSIZE)/(SQSIZE+SPSIZE);
+		if(i<NPOLE&&j<NPOLE&&i-1>=0&&j-1>=0){
+			area[i][j]=drawColor;
+			area[i-1][j]=drawColor;
+			area[i][j-1]=drawColor;
+			area[i-1][j-1]=drawColor;
+		}
 	}
 }
 
+int load_config(string configFile){
+	
+	string newstr;
+	string stemp;
+	
+	ifstream ifs(configFile.c_str());
+	if(ifs.fail()){
+		cerr<<"Fail to load config"<<endl;
+		return 0;
+	}
+	ifs>>newstr;
+	
+	while(!ifs.eof()){
+		if(newstr.find_first_of(";")==0){
+				while(ifs.get()!='\n');
+		}else{
+			if(newstr=="AREA_SIZE")
+				ifs>>NPOLE;
+			if(newstr=="SQUARE_SIZE")
+				ifs>>SQSIZE;
+			if(newstr=="GAP_SIZE")
+				ifs>>SPSIZE;
+			if(newstr=="EXIT_IF_NO_STEPS")
+				ifs>>DBG;
+			if(newstr=="START_X_POSITION")
+				ifs>>STARTX;
+			if(newstr=="START_Y_POSITION")
+				ifs>>STARTY;
+			if(newstr=="GO_PER_STEP")
+				ifs>>goPerStep;
+			if(newstr=="START_WITH_PAUSE")
+				ifs>>ispause;
+			if(newstr=="DRAW_COLOR")
+				ifs>>drawColor;
+			if(newstr=="SHOW_TURMITE")
+				ifs>>isShowTurmit;
+			if(newstr=="PAUSE_BETWEEN_STEPS")
+				ifs>>Timer;
+					
+			while(ifs.get()!='\n');
+				
+		}
+		newstr.clear();
+		ifs>>newstr;
+	}
+	if(STARTX==-1)
+		STARTX=NPOLE/2;
+	if(STARTY==-1)
+		STARTY=NPOLE/2;
+	ifs.close();
+	return 1;
+}
 
 int main(int Narg,char **arg){
+
+	load_config("config");
+	
+	Npixels=NPOLE*SQSIZE+(NPOLE+1)*SPSIZE+2;
+	
 	initArea();
 		
 	if(Narg>1){
@@ -714,7 +769,7 @@ int main(int Narg,char **arg){
  
  
 	glutInit(&Narg, arg);
-	glutInitWindowSize(Npixels, Npixels);
+	glutInitWindowSize(Npixels, Npixels+NTEXT);
 	(void)glutCreateWindow("turmits");
 	createMenu();
 	glutReshapeFunc(Reshape);
