@@ -1,0 +1,22 @@
+;go2right 1 1 2 go
+;go2right -1 -1 0 go2right
+
+
+go -1 2 0 go&fill
+	go&fill 0 2 1 isright
+		isright 0 2 0 go&fill
+		isright 1 1 2 back
+			back -1 -1 1 go&fill
+		isright 2 2 2 back
+	go&fill 1 1 2 rotate
+	go&fill 2 2 0 go&fill
+	rotate -1 -1 1 rotate1
+	rotate1 -1 -1 1 rotate15
+	rotate15 -1 -1 2 isfree
+	isfree 1 1 -1 isleft
+		isleft 0 0 2 rotate2
+		isleft -1 -1 2 rotate3
+			rotate3 -1 -1 -1 isfree
+	isfree 0 0 2 rotate2
+		rotate2 -1 -1 2 go
+	isfree 2 2 0 rotate2
