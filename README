@@ -1,3 +1,48 @@
-My simple and dirty turmits interpreter written in c++? with glut.
+My simple and dirty turmits interpreter written in c++, with glut and FLTK.
+<<<<<<< HEAD
+To run turmite file use -t key? and define turmite file name after key,example:
+./turm -t brains/langton
+To run cellular automata rule use -f key, to run elementary automata rule, like rule110 use -r key.
 
-c++ -lGLU -lglut turmit0.3.cpp -o turm && ./turm <turmit brain file>
+SYNTAX
+Turmite brain file consit of lines, where which line consist of 5 parts:
+<qrrent state> <qrrent cell color> <new cell color> <where to turn> <new state>
+, example:
+a_state 1 12 0 b_state
+Statement can take as value any string, and <*> to match any state, or if it new state field, it means not to change qrrent state. Color must be any number between 0 and 15 inclusive, and -1 to match any color, or if it new color field, -1 means not to change the color of cell. Rotate field must be 1, if you want to rotate by clockwise, -1 to rotate ounterclockwise, 0 means not rotate, and 2 means U rotate (by 180 degrees). Comments must begins with ';' symbol. Number of allowed steps must begins with '#' symbol. Cellular automata and elementary cellular automata do not support comments and num of steps yet.
+
+Cellular automata file consit of lines, where which line consist of 4 parts:
+<qrent color> <number of neighbors> <color of neighbors> <new color>
+
+it is very simple, look at examples:
+
+Game of Life:
+1 !23 1 0
+0 3 1 1
+
+Brian's Brain:
+0 2 1 1
+1 -1 -1 15
+15 -1 -1 0
+
+Elementary cellular automata file consit of lines, where which line consist of 2 parts:
+<combination of neighbors in previous line> <new color>
+
+example:
+
+Rule110:
+111 0
+110 1
+101 1
+100 0
+011 1
+010 1
+001 1
+000 0
+
+Usefull links:
+http://google.com/ ;)
+
+Sorry for my bad english please.
+=======
+>>>>>>> f053d7fd29c7c39f9c031c91ec10763fc442e916

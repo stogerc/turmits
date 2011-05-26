@@ -1,0 +1,12 @@
+go 0 2 1 go2
+go2 -1 2 -1 go
+go 1 2 -1 go2
+go2 -1 2 1 go
+go 2 2 -1 rotate
+
+rotate -1 0 -1 rotate2
+rotate2 1 2 -1 go
+rotate2 -1 2 0 langton
+langton 2 0 1 langton
+langton 0 2 -1 langton
+langton 1 2 0 go
