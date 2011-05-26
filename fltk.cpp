@@ -766,7 +766,7 @@ void calc_cb(Fl_Widget *w,void*){
 	string message;
 	for(int i=0;i<16;i++)
 		message+=" "+dec2str(win[i]);
-	clog<<message<<endl;
+	fl_alert("%s",message.c_str());
 			
 }
 
