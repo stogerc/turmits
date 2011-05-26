@@ -1,5 +1,5 @@
 My simple and dirty turmits interpreter written in c++, with glut and FLTK.
-<<<<<<< HEAD
+
 To run turmite file use -t key? and define turmite file name after key,example:
 ./turm -t brains/langton
 To run cellular automata rule use -f key, to run elementary automata rule, like rule110 use -r key.
